@@ -2,7 +2,7 @@ test
 
 # AWS (Dummy)
 AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE1
-AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY12
 
 # Database Connection String (Dummy)
 DB_CONNECTION_STRING=postgresql://dummy_user:dummy_password@dummy_host:5432/dummy_db
