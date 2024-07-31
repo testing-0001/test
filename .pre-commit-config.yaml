@@ -2,7 +2,9 @@ repos:
   - repo: https://github.com/gitleaks/gitleaks.git
     rev: v8.18.1
     hooks:
-      - id: gitleaks  
+      - id: gitleaks
+        name: gitleaks
+        description: Detect secrets in your data  using git leaks.  
         args: [protect]
 
 # repos:
@@ -11,7 +13,7 @@ repos:
       - id: trufflehog
         name: TruffleHog
         description: Detect secrets in your data.
-        entry: bash -c 'trufflehog git  --bare file://. --no-verification --fail'
+        entry: bash -c 'trufflehog git  --bare file://.  --fail'
           # /trufflehog --no-update git --bare file://. --only-verified --fail
         # For running trufflehog in docker, use the following entry instead:
         # entry: bash -c 'docker run --rm -v "$(pwd):/workdir" -i --rm trufflesecurity/trufflehog:latest git file:///workdir --since-commit HEAD --only-verified --fail'
