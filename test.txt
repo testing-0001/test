@@ -1,14 +1,14 @@
 test
 
 # AWS (Dummy)
-AWS_ACCESS_KEY_ID=AKIAIOSFODNN78EXAMPLE
-AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K78MDENG/bPxRfiCYEXAMPLEKEY
+AWS_ACCESS_KEY_ID=AKIAIOSFODNN78EXAMPLE1
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K78MDENG/bPxRfiCYEXAMPLEKEY1
 
 # Database Connection String (Dummy)
-DB_CONNECTION_STRING=postgresql://dummy_user:dummy_password1@dummy_host:5432/dummy_db
+DB_CONNECTION_STRING=postgresql://dummy_user:dummy_password21@dummy_host:5432/dummy_db
 
 # API Key (Dummy)
-API_KEY=sk_test_4eC39HqLyjWDarjtT1zdp78dc
+API_KEY=sk_test_4eC39HqLyjWDarjtT1zdp78d3c
 
 # Private SSH Key (Dummy)
 -----BEGIN RSA PRIVATE KEY-----
