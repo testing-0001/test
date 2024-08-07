@@ -32,13 +32,26 @@ jobs:
   scan:
     name: gitleaks
     runs-on: ubuntu-latest
+    # steps:
+    #   - name: Checkout Code
+    #     uses: actions/checkout@v3
+    #   - name: Run Gitleaks
+    #     uses: docker://zricethezav/gitleaks
+    #     with:
+    #       args: detect -s /repo --report-path /repo/my_report.json
+
+    #   - name: Upload Gitleaks Report
+    #     uses: actions/upload-artifact@v3
+    #     with:
+    #       name: gitleaks-report
+    #       path: my_report.json
+
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
       - name: Run Gitleaks
         uses: docker://zricethezav/gitleaks
         with:
-          args: detect -s /repo --report-path /repo/my_report.json
+          args: /bin/bash -c "git clone https://github.com/$GITHUB_REPOSITORY.git /repo && gitleaks detect -s /repo --report-path /repo/my_report.json"
 
       - name: Upload Gitleaks Report
         uses: actions/upload-artifact@v3
