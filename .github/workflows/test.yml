@@ -35,11 +35,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      # - name: Run Gitleaks
-      #   uses: actions/checkout@v4
-      #   with:
-      #     fetch-depth: 0
       - name: Run Gitleaks
-        uses: zricethezav/gitleaks@v1
+        uses: docker://zricethezav/gitleaks
         with:
-          args: detect 
+          args: detect -s /repo --report-path /repo/my_report.json
+
+      - name: Upload Gitleaks Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: gitleaks-report
+          path: my_report.json
