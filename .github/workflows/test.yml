@@ -40,6 +40,6 @@ jobs:
       #   with:
       #     fetch-depth: 0
       - name: Run Gitleaks
-        uses: zricethezav/gitleaks 
+        uses: zricethezav/gitleaks@v1
         with:
           args: detect 
