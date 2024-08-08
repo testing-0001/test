@@ -32,29 +32,24 @@ jobs:
   scan:
     name: gitleaks
     runs-on: ubuntu-latest
-    # steps:
-    #   - name: Checkout Code
-    #     uses: actions/checkout@v3
-    #   - name: Run Gitleaks
+
+    steps:
+      
     #     uses: docker://zricethezav/gitleaks
     #     with:
-    #       args: detect -s /repo --report-path /repo/my_report.json
+    #      args: -c "git clone https://github.com/$GITHUB_REPOSITORY.git /repo && gitleaks detect"
 
     #   - name: Upload Gitleaks Report
     #     uses: actions/upload-artifact@v3
     #     with:
     #       name: gitleaks-report
     #       path: my_report.json
-
-
-    steps:
-      - name: Run Gitleaks
-        uses: docker://zricethezav/gitleaks
+      - name: checkout code
+      - uses: actions/checkout@v4
         with:
-         args: -c "git clone https://github.com/$GITHUB_REPOSITORY.git /repo && gitleaks detect"
-
-      - name: Upload Gitleaks Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: gitleaks-report
-          path: my_report.json
+          fetch-depth: 0
+      - name: gitleaks scan
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS}}
