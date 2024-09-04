@@ -1,62 +1,9 @@
-# # This is a basic workflow to help you get started with Actions
-
-# name: CI
-
-# # Controls when the workflow will run
-# on:
-#   # Triggers the workflow on push or pull request events but only for the "main" branch
-#   push:
-#     branches: [ "main" ]
-#   pull_request:
-#     branches: [ "main" ]
-
-#   # Allows you to run this workflow manually from the Actions tab
-#   workflow_dispatch:
-
-# # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-# jobs:
-#   # This workflow contains a single job called "build"
-#   # build:
-#   #   # The type of runner that the job will run on
-#   #   runs-on: ubuntu-latest
-
-#   #   # Steps represent a sequence of tasks that will be executed as part of the job
-#   #   steps:
-#   #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-#   #     - uses: actions/checkout@v4
-
-#   #     # Runs a single command using the runners shell
-#   #     - name: Run a one-line script
-#   #       run: echo Hello, world!
-
-#   scan:
-#     name: gitleaks
-#     runs-on: ubuntu-latest
-
-#     steps:
-      
-#     #     uses: docker://zricethezav/gitleaks
-#     #     with:
-#     #      args: -c "git clone https://github.com/$GITHUB_REPOSITORY.git /repo && gitleaks detect"
-
-#     #   - name: Upload Gitleaks Report
-#     #     uses: actions/upload-artifact@v3
-#     #     with:
-#     #       name: gitleaks-report
-#     #       path: my_report.json
-
-#       - uses: actions/checkout@v3
-#         with:
-#           fetch-depth: 0
-
-#       - uses: gitleaks/gitleaks-action@v2
-
 name: Semgrep Scan
 
 on:
   push:
     branches:
-      - main  # Or your desired branch
+      - '*'
 
 jobs:
   semgrep:
@@ -73,12 +20,47 @@ jobs:
 
       - name: Semgrep Scan
         run: |
-          semgrep scan --config auto --sarif --output semgrep.sarif 
+          semgrep scan --config auto --oss-only --sarif --output=semgrep_output.sarif
 
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3  # Updated to v3
+      - name: Generate Summary from Semgrep SARIF
+        id: semgrep_summary 
+        run: |
+          # Install 'jq' for JSON parsing (if not already installed)
+          sudo apt-get update && sudo apt-get install -y jq
+
+          # Parse the SARIF output
+          total_findings=$(jq '.runs[].results | length' semgrep_output.sarif) 
+          errors=$(jq '.runs[].results[] | select(.level == "error") | length' semgrep_output.sarif)
+          warnings=$(jq '.runs[].results[] | select(.level == "warning") | length' semgrep_output.sarif)
+
+          if [ $total_findings -gt 0 ]; then
+            echo "**Findings:**" >> $GITHUB_STEP_SUMMARY
+            jq -r '.results[] | "* \(.path):\(.start.line): \(.extra.message)"' semgrep_output.sarif >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Generate the summary
+          echo "### Semgrep Scan Results (SARIF) ###" >> $GITHUB_STEP_SUMMARY
+          echo "**Total Findings:** $total_findings" >> $GITHUB_STEP_SUMMARY
+          echo "**Errors:** $errors" >> $GITHUB_STEP_SUMMARY
+          echo "**Warnings:** $warnings" >> $GITHUB_STEP_SUMMARY
+
+          if [ $total_findings -gt 0 ]; then
+              echo "**Findings:**" >> $GITHUB_STEP_SUMMARY
+              echo "$sample_findings" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Set outputs for use in later steps or other jobs (if needed)
+          echo "total_findings=$total_findings" >> $GITHUB_OUTPUT
+          echo "errors=$errors" >> $GITHUB_OUTPUT
+          echo "warnings=$warnings" >> $GITHUB_OUTPUT
+
+      - name: Upload Semgrep Results as Artifact
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: semgrep.sarif
-#         env:
-#           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#           GITLEAKS_LICENSE: ${{ secrets.GIT_LEAKS_LICENCE}}
+          name: semgrep-results
+          path: semgrep_output.sarif
+      
+      - name: Upload SARIF file to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep_output.sarif
