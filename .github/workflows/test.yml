@@ -25,27 +25,21 @@ jobs:
       - name: Generate Summary from Semgrep JSON
         id: semgrep_summary # Add an ID to reference the outputs later
         run: |
-          # Install 'jq' for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
-
-          # Parse the JSON output
           total_findings=$(jq '.results | length' semgrep_output.json)
           errors=$(jq '.results | map(select(.severity == "ERROR")) | length' semgrep_output.json)
           warnings=$(jq '.results | map(select(.severity == "WARNING")) | length' semgrep_output.json)
 
-          # Generate the summary
           echo "### Semgrep Scan Results ###" >> $GITHUB_STEP_SUMMARY
           echo "**Total Findings:** $total_findings" >> $GITHUB_STEP_SUMMARY
           echo "**Errors:** $errors" >> $GITHUB_STEP_SUMMARY
           echo "**Warnings:** $warnings" >> $GITHUB_STEP_SUMMARY
 
-          # Optionally, include sample findings if any exist
           if [ $total_findings -gt 0 ]; then
             echo "**Findings:**" >> $GITHUB_STEP_SUMMARY
             jq -r '.results[] | "* \(.path):\(.start.line): \(.extra.message)"' semgrep_output.json >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Set outputs for use in later steps or other jobs
           echo "total_findings=$total_findings" >> $GITHUB_OUTPUT
           echo "errors=$errors" >> $GITHUB_OUTPUT
           echo "warnings=$warnings" >> $GITHUB_OUTPUT
