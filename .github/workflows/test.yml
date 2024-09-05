@@ -32,11 +32,12 @@ jobs:
           total_findings=$(jq '.runs[].results | length' semgrep_output.sarif) 
           errors=$(jq '.runs[].results[] | select(.level == "error") | length' semgrep_output.sarif)
           warnings=$(jq '.runs[].results[] | select(.level == "warning") | length' semgrep_output.sarif)
-          sample_findings=$(jq -r '.runs[].results[] 
-            | select(.locations | length > 0) 
-            | select(.locations[].physicalLocation.artifactLocation.uri and .locations[].physicalLocation.region.startLine) 
-            | "* \(.locations[].physicalLocation.artifactLocation.uri):\(.locations[].physicalLocation.region.startLine): \(.message.text)"' 
-          semgrep_output.sarif )
+          sample_findings=$(jq -r '.runs[].results[] | "\(.message.text) at \(.locations[].physicalLocation.artifactLocation.uri):\(.locations[].physicalLocation.region.startLine)"' semgrep_output.sarif) 
+          # sample_findings=$(jq -r '.runs[].results[] 
+          #   | select(.locations | length > 0) 
+          #   | select(.locations[].physicalLocation.artifactLocation.uri and .locations[].physicalLocation.region.startLine) 
+          #   | "* \(.locations[].physicalLocation.artifactLocation.uri):\(.locations[].physicalLocation.region.startLine): \(.message.text)"' 
+          # semgrep_output.sarif )
           # Generate the summary
           echo "### Semgrep Scan Results (SARIF) ###" >> $GITHUB_STEP_SUMMARY
           echo "**Total Findings:** $total_findings" >> $GITHUB_STEP_SUMMARY
